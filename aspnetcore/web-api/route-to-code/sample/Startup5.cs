@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace WebR2C
 {
-    public class Startup3
+    public class Startup5
     {
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
@@ -37,12 +38,22 @@ namespace WebR2C
             #region snippet
             app.UseEndpoints(endpoints =>
             {
-                UserApi.Register(endpoints);
-                ProductApi.Register(endpoints);
-                ReportingApi.Register(endpoints);
+                // Route-based APIs
+                UserApi.Map(endpoints);
+                ProductApi.Map(endpoints);
+
+                // Map other endpoints...
+                endpoints.MapRazorPages();
             });
             #endregion
 
+        }
+
+        private static class ProductApi
+        {
+            public static void Map(IEndpointRouteBuilder endpoints)
+            {
+            }
         }
     }
 }

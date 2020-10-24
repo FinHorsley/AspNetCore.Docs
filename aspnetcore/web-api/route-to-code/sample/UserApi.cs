@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -13,7 +14,7 @@ namespace WebR2C
     #region snippet
     public static class UserApi
     {
-        public static void Register(IEndpointRouteBuilder endpoints)
+        public static void Map(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapGet("/user/{id}", async context =>
             {
