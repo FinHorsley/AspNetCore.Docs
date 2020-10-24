@@ -38,13 +38,47 @@ The preceding code configures a JSON API for an app:
 * When the route is matched the API reads the `name` route value from the request.
 * Writes an anonymous type as JSON response with `WriteAsJsonAsync`.
 
-`ReadFromJsonAsync` can be used to deserialize a JSON response in a route-based JSON API:
+`HasJsonContentType` and `ReadFromJsonAsync` can be used to deserialize a JSON response in a route-based JSON API:
 
 [!code-csharp[](route-to-code/sample/Startup2.cs?name=snippet)]
 
-Attributes can't be placed on endpoints that register a request delegate. Instead, metadata is added using extension methods. For example, `RequireAuthorization` can be called when registering an endpoint to notify authorization middleware that callers of this endpoint must be authenticated.
+The preceding code:
+
+* Adds a `POST` API endpoint with `/weather` as the route template.
+* When the route is matched `HasJsonContentType` validates the request content type. A non-JSON content type returns a 415 status code.
+* If the content type is JSON then the request content is deserialized to a .NET type and is used by the app.
+
+## Authorization
+
+Attributes can't be placed on endpoints that map to a request delegate. Instead, metadata is added using extension methods. For example, `RequireAuthorization` can be called when mapping an endpoint to notify authorization middleware that callers of this endpoint must be authenticated.
 
 [!code-csharp[](route-to-code/sample/Startup.cs?name=snippet)]
+
+## Dependency injection
+
+Dependency injection (DI) using a constructor is not possible with Route to code. Web API creates a controller for you with services injected into the constructor. A type isn't created when an endpoint is executed so services must be resolved manually.
+
+Route-based APIs can use IServiceProvider to resolve services:
+
+* Transient and scoped lifetime services, such as DbContext, must be resolved from [HttpContext.RequestServices](xref:Microsoft.AspNetCore.Http.HttpContext.RequestServices) inside an endpoint's request delegate.
+* Singleton lifetime services, such as loggers, can be resolved from [IEndpointRouteBuilder.ServiceProvider](xref:Microsoft.AspNetCore.Routing.IEndpointRouteBuilder.ServiceProvider). Services can be resolved outside of request delegates and shared between endpoints.
+
+[!code-csharp[](route-to-code/sample/Startup4.cs?name=snippet)]
+
+APIs that heavily use DI should consider using Web API. Service injection using a controller's constructor is easier to use than manually resolving services.
+
+## API project structure
+
+Route-based APIs don't have to be mapped in *Startup.cs*. They can be mapped in a static type to reduce the startup configuration file size down.
+
+[!code-csharp[](route-to-code/sample/UserApi.cs?name=snippet)]
+
+[!code-csharp[](route-to-code/sample/Startup5.cs?name=snippet)]
+
+The preceding code:
+
+* Defines a static class `UserApi` with a method that maps route-based APIs.
+* Calls `UserApi` and other static classes in `UseEndpoints`.
 
 ## Additional resources
 
